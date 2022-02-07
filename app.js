@@ -10,6 +10,7 @@ dotenv.config();
 const webSocket = require('./socket');
 const home = require('./routes');
 const connect = require('./schemas');
+const ColorHash = require('color-hash').default;
 
 const app = express();
 app.set('port', process.env.PORT || 8005);
@@ -21,12 +22,7 @@ nunjucks.configure('views', {
 });
 connect();
 
-app.use(morgan('dev'));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieparser(process.env.COOKIE_SECRET));
-app.use(session({
+const sessionMw = session({
     resave: false,
     saveUninitialized: false,
     secret: process.env.COOKIE_SECRET,
@@ -34,7 +30,21 @@ app.use(session({
         httpOnly: true,
         secure: false,
     },
-}));
+});
+app.use(morgan('dev'));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieparser(process.env.COOKIE_SECRET));
+app.use(sessionMw);
+
+app.use((req, res, next) => {
+    if(!req.session.color){
+        const colorHash = new ColorHash();
+        req.session.color = colorHash.hex(req.sessionID);
+    }
+    next();
+});
 
 app.use('/', home);
 
@@ -55,5 +65,5 @@ const server = app.listen(app.get('port'), () => {
     console.log(app.get('port'), '번 포트 대기중');
 });
 
-webSocket(server);
+webSocket(server, app, sessionMw);
 
