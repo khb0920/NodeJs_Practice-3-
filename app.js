@@ -10,7 +10,7 @@ dotenv.config();
 const webSocket = require('./socket');
 const home = require('./routes');
 const connect = require('./schemas');
-const ColorHash = require('color-hash').default;
+const ColorHash = require('color-hash');
 
 const app = express();
 app.set('port', process.env.PORT || 8005);
@@ -33,6 +33,7 @@ const sessionMw = session({
 });
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/gif', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieparser(process.env.COOKIE_SECRET));
