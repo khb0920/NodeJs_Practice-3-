@@ -1,4 +1,4 @@
-# NodeJs_Practice-3-
+# gif 채팅방
 
 nodejs , Nosql, socket.io 기반 gif 채팅 , frontcode&css made by Zerocho
 <br>
