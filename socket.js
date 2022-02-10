@@ -29,10 +29,17 @@ module.exports = (server, app, sessionMw) => {
             .split('/')[referer.split('/').length - 1]
             .replace(/\?.+/, '');
         socket.join(roomId);
-        socket.to(roomId).emit('join', {
-            user: 'system',
-            chat: `${req.session.color}님이 입장하셨습니다.`,
-            number: socket.adapter.rooms[roomId].length,
+        // socket.to(roomId).emit('join', {
+        //     user: 'system',
+        //     chat: `${req.session.color}님이 입장하셨습니다.`,
+        //     number: socket.adapter.rooms[roomId].length,
+        // });
+        axios.post(`http://localhost:8005/room/${roomId}/sys`, {
+            type: 'join',
+        }, {
+            headers: {
+                Cookie: `connect.sid=${'s%3A' + cookie.sign(req.signedCookies['connect.sid'], process.env.COOKIE_SECRET)}`
+            },
         });
 
         socket.on('disconnect', () => {
@@ -55,10 +62,17 @@ module.exports = (server, app, sessionMw) => {
                         console.error(error);
                     });
             } else {
-                socket.to(roomId).emit('exit', {
-                    user: 'system',
-                    chat: `${req.session.color}님이 퇴장하셨습니다`,
-                    number: socket.adapter.rooms[roomId].length,
+                // socket.to(roomId).emit('exit', {
+                //     user: 'system',
+                //     chat: `${req.session.color}님이 퇴장하셨습니다`,
+                //     number: socket.adapter.rooms[roomId].length,
+                // });
+                axios.post(`http://localhost:8005/room/${roomId}/sys`, {
+                    type: 'exit',
+                }, {
+                    headers: {
+                        Cookie: `connect.sid=${'s%3A' + cookie.sign(req.signedCookies['connect.sid'], process.env.COOKIE_SECRET)}`
+                    },
                 });
             }
         });
