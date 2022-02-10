@@ -58,6 +58,7 @@ router.get('/room/:id', async(req, res, next) => {  //채팅방을 렌더링하�
             room,
             title: room.title,
             chats,
+            number: (rooms && rooms[req.params.id] && rooms[req.params.id].length + 1) || 1,
             user: req.session.color,
         });
     } catch (error) {

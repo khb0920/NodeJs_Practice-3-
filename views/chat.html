@@ -3,6 +3,9 @@
 {% block content %}
   <h1>{{title}}</h1>
   <a href="/" id="exit-btn">방 나가기</a>
+  <div id="number">참여자 수 :
+    <div id="number-count">{{number}}</div>
+  </div>
   <fieldset>
     <legend>채팅 내용</legend>
     <div id="chat-list">
@@ -46,6 +49,7 @@
       path: '/socket.io',
     });
     socket.on('join', function (data) {
+      document.querySelector('#number-count').textContent = (data.number);
       const div = document.createElement('div');
       div.classList.add('system');
       const chat = document.createElement('div');
@@ -54,6 +58,7 @@
       document.querySelector('#chat-list').appendChild(div);
     });
     socket.on('exit', function (data) {
+      document.querySelector('#number-count').textContent = (data.number);
       const div = document.createElement('div');
       div.classList.add('system');
       const chat = document.createElement('div');
