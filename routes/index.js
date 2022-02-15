@@ -82,14 +82,33 @@ router.delete('/room/:id', async(req, res, next) => {       //해당 채팅방 �
 });
 
 router.post('/room/:id/chat', async(req, res, next) => {    // 채팅 라우터
+    // try {
+    //     const chat = await Chat.create({        //채팅을 db에저장
+    //         room: req.params.id,
+    //         user: req.session.color,
+    //         chat: req.body.chat,
+    //     });
+    //     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat); //같은방에 있는 소켓들에게 메시지 데이터전송
+    //     res.send('ok');
+    // } catch (error) {
+    //     console.error(error);
+    //     next(error);
+    // }
     try {
-        const chat = await Chat.create({        //채팅을 db에저장
+        const chat = new Chat({
+            room: req.params.id,
+            user: req.session.color,
+            chat: req.body.chat,
+
+        });
+        await chat.save();
+        res.send('ok');
+        req.app.get('io').of('/chat').to(req.params.id).emit('chat', {
+            socket: req.body.sid,
             room: req.params.id,
             user: req.session.color,
             chat: req.body.chat,
         });
-        req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat); //같은방에 있는 소켓들에게 메시지 데이터전송
-        res.send('ok');
     } catch (error) {
         console.error(error);
         next(error);
@@ -116,18 +135,36 @@ const upload = multer({
 });
 
 router.post('/room/:id/gif', upload.single('gif'), async (req, res, next) => {
-    console.log(req.params.id);
+    // try {
+    //   const chat = await Chat.create({
+    //     room: req.params.id,
+    //     user: req.session.color,
+    //     gif: req.file.filename,
+    //   });
+    //   req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
+    //   res.send('ok');
+    // } catch (error) {
+    //   console.error(error);
+    //   next(error);
+    // }
     try {
-      const chat = await Chat.create({
-        room: req.params.id,
-        user: req.session.color,
-        gif: req.file.filename,
-      });
-      req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
-      res.send('ok');
+        const chat = new Chat({
+            room: req.params.id,
+            user: req.session.color,
+            gif: req.file.filename,
+
+        });
+        await chat.save();
+        res.send('ok');
+        req.app.get('io').of('/chat').to(req.params.id).emit('chat', {
+            socket: req.body.sid,
+            room: req.params.id,
+            user: req.session.color,
+            gif: req.file.filename,
+        });
     } catch (error) {
-      console.error(error);
-      next(error);
+        console.error(error);
+        next(error);
     }
   });
 

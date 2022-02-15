@@ -62,11 +62,6 @@ module.exports = (server, app, sessionMw) => {
                         console.error(error);
                     });
             } else {
-                // socket.to(roomId).emit('exit', {
-                //     user: 'system',
-                //     chat: `${req.session.color}님이 퇴장하셨습니다`,
-                //     number: socket.adapter.rooms[roomId].length,
-                // });
                 axios.post(`http://localhost:8005/room/${roomId}/sys`, {
                     type: 'exit',
                 }, {
@@ -75,6 +70,9 @@ module.exports = (server, app, sessionMw) => {
                     },
                 });
             }
+        });
+        socket.on('wis', (data) => {
+            socket.to(data.target).emit('wis', data);
         });
     });
 };
