@@ -74,5 +74,11 @@ module.exports = (server, app, sessionMw) => {
         socket.on('wis', (data) => {
             socket.to(data.target).emit('wis', data);
         });
+        socket.on('ban', (data) => {
+            socket.to(data.id).emit('ban');
+        });
+        socket.on('delegate', (data) => {
+            socket.to(data.id).emit('delegate'); 
+        })
     });
 };

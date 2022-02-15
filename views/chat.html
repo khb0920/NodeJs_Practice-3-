@@ -79,19 +79,22 @@
       const name = document.createElement('div');
       name.textContent = data.user;
       name.className = 'chat-user';
-      const wis = document.createElement('button')
-      wis.textContent = '귓속말';
-      wis.className = 'wis';
-      wis.dataset.socket = data.socket;
-      wis.addEventListener('click', sendWis);
-      name.appendChild(wis);
-
+      if(data.user !== '{{user}}'){
+        const wis = document.createElement('button')
+        wis.textContent = '귓속말';
+        wis.className = 'wis';
+        wis.dataset.socket = data.socket;
+        wis.addEventListener('click', sendWis);
+        name.appendChild(wis);
+      }
+      if(data.user !== '{{user}}' && data.user !== '{{room.owner}}'){
       const banbtn = document.createElement('button');
       banbtn.className = 'ban';
       banbtn.textContent = '강퇴';
       banbtn.dataset.socket = data.socket;
       banbtn.addEventListener('click', ban);
       name.appendChild(banbtn);
+      }
       div.appendChild(name);
       if(data.chat) {
         const chat = document.createElement('div');
@@ -135,23 +138,21 @@
     const sendWis = function (e) {
       const id = e.target.dataset.socket;
       const prompt = window.prompt('메시지를 입력하세요');
-      socket.emit('wis', { target: id, msg: prompt, from: '{{room.user}}'});
+      socket.emit('wis', { target: id, msg: prompt, from: '{{user}}'});
     };
     Array.prototype.forEach.call(document.querySelectorAll('#wis'), function(el){
       el.addEventListener('click', sendWis);
     });
     socket.on('wis', function (data) {
       alert(data.from + '님에게서 귓속말이 도착했습니다:' + data.msg);
-    })
-
+    });
     function ban(e) {
       const id = e.target.dataset.socket;
       const name = e.target.textContent;
-      console.log(id);
       const owner = document.getElementById('room-owner').textContent;
-      //console.log('{{user}}', owner);
-      if('{{user}}' === owner && name !== owner) {
-        if(confirm(`${name}를 강퇴하시겠습니까?`)) {
+      console.log('{{user}}', owner);
+      if('{{user}}' === owner && name !== owner){
+        if(confirm(`${name}를 강퇴하시겠습니까?`)){
           socket.emit('ban', { id });
         }
       }
@@ -159,8 +160,8 @@
     Array.prototype.forEach.call(document.querySelectorAll('#ban'), function(el){
       el.addEventListener('click', ban);
     });
-    socket.on('ban', function() {
-      alert('강퇴 되었습니다');
+    socket.on('ban', function () {
+      alert('강퇴 되었습니다.');
       location.href = '/';
     });
   </script>
