@@ -2,6 +2,8 @@ const SocketIO = require('socket.io');
 const axios = require('axios');
 const cookie = require('cookie-signature');
 const cookieParser = require('cookie-parser');
+const Room = require('./schemas/room');
+
 
 module.exports = (server, app, sessionMw) => {
     const io = SocketIO(server, { path: '/socket.io' }); //path옵션 : 클라이언트가 접속할 경로 설정 
@@ -29,11 +31,6 @@ module.exports = (server, app, sessionMw) => {
             .split('/')[referer.split('/').length - 1]
             .replace(/\?.+/, '');
         socket.join(roomId);
-        // socket.to(roomId).emit('join', {
-        //     user: 'system',
-        //     chat: `${req.session.color}님이 입장하셨습니다.`,
-        //     number: socket.adapter.rooms[roomId].length,
-        // });
         axios.post(`http://localhost:8005/room/${roomId}/sys`, {
             type: 'join',
         }, {
@@ -77,8 +74,5 @@ module.exports = (server, app, sessionMw) => {
         socket.on('ban', (data) => {
             socket.to(data.id).emit('ban');
         });
-        socket.on('delegate', (data) => {
-            socket.to(data.id).emit('delegate'); 
-        })
     });
 };

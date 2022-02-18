@@ -5,6 +5,9 @@ const fs = require('fs');
 
 const Room = require('../schemas/room');
 const Chat = require('../schemas/chat');
+const { send } = require('process');
+const { default: axios } = require('axios');
+const { ok } = require('assert');
 
 const router = express.Router();
 
@@ -60,6 +63,7 @@ router.get('/room/:id', async(req, res, next) => {  //채팅방을 렌더링하�
             chats,
             number: (rooms && rooms[req.params.id] && rooms[req.params.id].length + 1) || 1,
             user: req.session.color,
+            owner: room.owner
         });
     } catch (error) {
         console.error(error);
@@ -82,18 +86,6 @@ router.delete('/room/:id', async(req, res, next) => {       //해당 채팅방 �
 });
 
 router.post('/room/:id/chat', async(req, res, next) => {    // 채팅 라우터
-    // try {
-    //     const chat = await Chat.create({        //채팅을 db에저장
-    //         room: req.params.id,
-    //         user: req.session.color,
-    //         chat: req.body.chat,
-    //     });
-    //     req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat); //같은방에 있는 소켓들에게 메시지 데이터전송
-    //     res.send('ok');
-    // } catch (error) {
-    //     console.error(error);
-    //     next(error);
-    // }
     try {
         const chat = new Chat({
             room: req.params.id,
@@ -135,18 +127,6 @@ const upload = multer({
 });
 
 router.post('/room/:id/gif', upload.single('gif'), async (req, res, next) => {
-    // try {
-    //   const chat = await Chat.create({
-    //     room: req.params.id,
-    //     user: req.session.color,
-    //     gif: req.file.filename,
-    //   });
-    //   req.app.get('io').of('/chat').to(req.params.id).emit('chat', chat);
-    //   res.send('ok');
-    // } catch (error) {
-    //   console.error(error);
-    //   next(error);
-    // }
     try {
         const chat = new Chat({
             room: req.params.id,
@@ -190,5 +170,6 @@ router.post('/room/:id/sys', async(req, res, next) => {
         next(error);
     }
 });
+
 
 module.exports = router;
